@@ -4,7 +4,7 @@ import router from './routes';
 import expressEjsLayouts from 'express-ejs-layouts';
 import cors from 'cors';
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const app = express();
 export const prisma = new PrismaClient();
 

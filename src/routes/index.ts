@@ -1,7 +1,11 @@
-import {Router} from "express";
+import {Router, Request, Response} from "express";
 import referralRoutes from "./referral";
 
 const router = Router();
+
+router.get('/', (req:Request, res:Response) => {
+    return res.send('Welcome to the Accredian Backend Task API');
+});
 
 router.use('/referral', referralRoutes);
 
