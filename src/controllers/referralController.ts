@@ -103,7 +103,7 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
         });
 
         if(existReferral){
-            return res.status(403).json({
+            return res.status(409).json({
                 message: "Referral Already Exists"
             });
         }
