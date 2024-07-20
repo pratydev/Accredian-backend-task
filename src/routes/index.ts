@@ -1,8 +1,8 @@
 import {Router} from "express";
-import userRoutes from "./user";
+import referralRoutes from "./referral";
 
 const router = Router();
 
-router.use('/user', userRoutes);
+router.use('/referral', referralRoutes);
 
 export default router;

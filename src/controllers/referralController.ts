@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import zod from 'zod';
 import { prisma } from "..";
-import { successReferrer, successReferred } from "../mailer/referralMail";
+import { successReferrer, successReferee } from "../mailer/referralMail";
 
 const nameSchema = zod.string().min(3, 'Name cannot be shorter than 3 characters').max(40, 'Name cannot be longer than 40 characters');
 const emailSchema = zod.string().email();
@@ -11,10 +11,10 @@ const referralSchema = zod.object({
     referrerName: nameSchema,
     referrerEmail: emailSchema,
     referrerPhoneNumber: phoneSchema,
-    referredName: nameSchema,
-    referredEmail: emailSchema,
-    referredPhoneNumber: phoneSchema,
-    preferredCourse: zod.string()
+    refereeName: nameSchema,
+    refereeEmail: emailSchema,
+    refereePhoneNumber: phoneSchema,
+    prefereeCourse: zod.string()
 });
 
 function generateReferralCode() {
@@ -23,7 +23,7 @@ function generateReferralCode() {
 
     const referralCode = Math.floor(Math.random() * (max - min + 1)) + min;
 
-    return referralCode;
+    return referralCode.toString();
 }
 
 
@@ -40,10 +40,22 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
             })
         }
 
-        const { referrerEmail, referrerPhoneNumber, referredEmail, referredPhoneNumber, preferredCourse } = req.body;
+        const { referrerName, referrerEmail, referrerPhoneNumber, refereeName, refereeEmail, refereePhoneNumber, preferredCourse } = req.body;
 
-        const referrer = await prisma.user.findUnique({
-            where: {
+
+
+        const existingReferrer = await prisma.user.findUnique({
+            where: { email: referrerEmail, phoneNumber: referrerPhoneNumber },
+            select: {
+                id: true,
+                name: true,
+                email: true
+            }
+        });
+
+        const referrer = existingReferrer || await prisma.user.create({
+            data: {
+                name: referrerName,
                 email: referrerEmail,
                 phoneNumber: referrerPhoneNumber
             },
@@ -54,16 +66,21 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
             }
         });
 
-        if (!referrer) {
-            return res.status(400).json({
-                message: 'Invalid Referrer User'
-            })
-        }
+        const existingReferee = await prisma.user.findUnique({
+            where: {email: refereeEmail, phoneNumber: refereePhoneNumber},
+            select: {
+                id: true,
+                name: true,
+                email: true
+            }
+        });
 
-        const referred = await prisma.user.findUnique({
-            where: {
-                email: referredEmail,
-                phoneNumber: referredPhoneNumber
+
+        const referee = existingReferee || await prisma.user.create({
+            data: {
+                email: refereeEmail,
+                name: refereeName,
+                phoneNumber: refereePhoneNumber
             },
             select: {
                 id: true,
@@ -72,9 +89,22 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
             }
         });
 
-        if (!referred) {
-            return res.status(400).json({
-                message: 'Invalid Referred User'
+        
+
+        const existReferral = await prisma.referral.findFirst({
+            where: {
+                refereeId: referee.id,
+                referrerId: referrer.id,
+                preferredCourse
+            },
+            select: {
+                id: true
+            }
+        });
+
+        if(existReferral){
+            return res.status(403).json({
+                message: "Referral Already Exists"
             });
         }
 
@@ -83,13 +113,15 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
         const referral = await prisma.referral.create({
             data: {
                 referrerId: referrer.id,
-                referredUserId: referred.id,
+                refereeId: referee.id,
                 referralCode,
                 preferredCourse
             }
         });
 
-        successReferrer(referrer, referred, {preferredCourse, referralCode});
+        successReferrer(referrer, referee, {preferredCourse, referralCode});
+
+        successReferee(referrer, referee, {preferredCourse, referralCode});
 
         return res.status(200).json({
             message: 'Referral Successful',

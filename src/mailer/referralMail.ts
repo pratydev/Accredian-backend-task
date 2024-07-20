@@ -14,7 +14,7 @@ interface Referred {
 
 interface MailDetails {
     preferredCourse: string;
-    referralCode: number;
+    referralCode: string;
 }
 
 
@@ -43,7 +43,7 @@ function successReferrer(referrer: Referrer, referred: Referred, details: MailDe
     }, errorHandler);
 }
 
-function successReferred(referrer: Referrer, referred: Referred, details: MailDetails){
+function successReferee(referrer: Referrer, referred: Referred, details: MailDetails){
     const subject:string = 'Confirmation Regarding Successful Referral';
     const htmlString = renderTemplate({referrer, referred, details}, '/referralMailer/successReferred.ejs');
     const customText = `You have successfully referred your friend ${referred.name}  for the course ${details.preferredCourse}`
@@ -61,4 +61,4 @@ function successReferred(referrer: Referrer, referred: Referred, details: MailDe
 
 }
 
-export {successReferrer, successReferred};
+export {successReferrer, successReferee};

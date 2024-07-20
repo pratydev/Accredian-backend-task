@@ -27,4 +27,29 @@ app.listen(PORT, (err?:any)=>{
         return;
     }
     console.log('Server is up and running');
-})
+});
+
+/*
+
+model User {
+  id                 Int        @id @default(autoincrement())
+  email              String     @unique
+  password           String?
+  phoneNumber        String     @unique
+  name               String
+  referralsMade      Referral[] @relation("ReferrerReferrals")
+  referralsReceived  Referral[] @relation("ReferredReferrals")
+}
+
+model Referral {
+  id                 Int      @id @default(autoincrement())
+  referrerId         Int
+  referredUserId     Int
+  referralCode       String   @unique
+  preferredCourse    String
+
+  referrer           User     @relation("ReferrerReferrals", fields: [referrerId], references: [id])
+  referredUser       User     @relation("ReferredReferrals", fields: [referredUserId], references: [id])
+}
+
+*/

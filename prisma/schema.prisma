@@ -19,19 +19,20 @@ model User {
   password           String?
   phoneNumber        String     @unique
   name               String
-  referralsMade      Referral[] @relation("ReferralsMade")
-  referralsReceived  Referral[] @relation("ReferralsReceived")
+  referralsMade      Referral[] @relation("ReferrerReferrals")
+  referralsReceived  Referral[] @relation("ReferredReferrals")
 }
 
 model Referral {
-  id                 Int        @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   referrerId         Int
-  referredUserId     Int
-  referralCode       Int        @unique
+  refereeId          Int
+  referralCode       String   @unique
   preferredCourse    String
 
-  referrer           User       @relation("ReferralsMade", fields: [referrerId], references: [id])
-  referredUser       User       @relation("ReferralsReceived", fields: [referredUserId], references: [id])
+  referrer           User     @relation("ReferrerReferrals", fields: [referrerId], references: [id])
+  referee            User     @relation("ReferredReferrals", fields: [refereeId], references: [id])
 
-  @@unique([referrerId, referredUserId])
+   @@unique([referrerId, refereeId, preferredCourse])
 }
+
