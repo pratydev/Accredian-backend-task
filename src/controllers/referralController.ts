@@ -5,7 +5,7 @@ import { successReferrer, successReferee } from "../mailer/referralMail";
 
 const nameSchema = zod.string().min(3, 'Name cannot be shorter than 3 characters').max(40, 'Name cannot be longer than 40 characters');
 const emailSchema = zod.string().email();
-const phoneSchema = zod.string().min(10, 'Phone Number cannot be shorter than 10 digits').max(12, 'Phone Number cannot exceed 12 digits');
+const phoneSchema = zod.string().min(10, 'Phone Number cannot be shorter than 10 digits').max(13, 'Phone Number cannot exceed 13 digits');
 
 const referralSchema = zod.object({
     referrerName: nameSchema,
@@ -14,7 +14,7 @@ const referralSchema = zod.object({
     refereeName: nameSchema,
     refereeEmail: emailSchema,
     refereePhoneNumber: phoneSchema,
-    prefereeCourse: zod.string()
+    preferredCourse: zod.string()
 });
 
 function generateReferralCode() {
@@ -37,11 +37,10 @@ export const handleReferralSubmission = async function (req: Request, res: Respo
                 data: {
                     error: error.errors[0].message
                 }
-            })
+            });
         }
 
         const { referrerName, referrerEmail, referrerPhoneNumber, refereeName, refereeEmail, refereePhoneNumber, preferredCourse } = req.body;
-
 
 
         const existingReferrer = await prisma.user.findUnique({
