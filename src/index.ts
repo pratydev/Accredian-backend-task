@@ -31,5 +31,5 @@ app.listen(PORT, (err?:any)=>{
         console.log(`Error in starting the server at PORT:${PORT}`);
         return;
     }
-    console.log('Server is up and running');
+    console.log('Server is up and running at  PORT: ' + PORT);;
 });
